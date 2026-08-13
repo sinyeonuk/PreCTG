@@ -44,8 +44,10 @@ This document defines the confirmed project-specific boundaries for PreCTG devel
 ## Git Workflow
 
 - Treat `origin` as the authorized project remote for this repository and use the `main` branch unless the user explicitly requests another branch.
-- Handle the project's Git commit and push workflow when the user delegates it to Codex; do not ask a teammate to perform routine commit or push steps.
+- Treat Git commit and push operations for this repository as delegated to Codex for the duration of the project, unless the user explicitly revokes or narrows that delegation.
+- Do not ask a teammate to perform routine commit or push steps, and do not request per-commit confirmation for changes within the current task scope.
 - Review the working tree and staged diff before committing, and do not include unrelated or unexplained files.
 - Write commit messages in natural, concise Korean intended for the project team; describe the actual change and avoid translation-like wording, generic messages, and unnecessary prefixes.
-- Prefer one focused commit per coherent task and push the verified commit to the configured remote after the user-authorized change is complete.
+- Group related changes into a coherent commit and choose commit boundaries pragmatically; do not create a separate commit for every small edit or intermediate step.
+- Push verified commits to the configured remote at a sensible milestone, such as completion of a coherent feature, documentation unit, or stable checkpoint.
 - Report the commit hash, branch, push result, and any files intentionally excluded when handing off the change.
