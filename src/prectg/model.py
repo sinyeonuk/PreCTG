@@ -15,7 +15,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import GroupShuffleSplit
 
 from prectg.features import model_feature_contract, record_feature_frame, training_feature_frame
-from prectg.schema import NormalizedRecord
+from prectg.schema import NormalizedRecord, Signal
 from prectg.synthetic import dataframe_checksum
 
 MODEL_BUNDLE_VERSION = "prectg-model-bundle-v1"
@@ -191,6 +191,19 @@ def predict_batch_probabilities(bundle: dict[str, Any], frame: pd.DataFrame) -> 
     if not np.isfinite(probabilities).all() or ((probabilities < 0) | (probabilities > 1)).any():
         raise ModelContractError("배치 모델 확률이 허용 범위를 벗어났습니다.")
     return probabilities
+
+
+def probability_signal(bundle: dict[str, Any], probability: float) -> Signal:
+    """Classify a synthetic probability using thresholds stored with its model."""
+    validate_model_bundle(bundle)
+    if not 0 <= probability <= 1:
+        raise ModelContractError("모델 확률이 허용 범위를 벗어났습니다.")
+    thresholds = bundle["thresholds"]
+    if probability < thresholds["low"]:
+        return Signal.LOW
+    if probability < thresholds["high"]:
+        return Signal.REVIEW
+    return Signal.HIGH
 
 
 def training_report_dict(report: TrainingReport) -> dict[str, Any]:

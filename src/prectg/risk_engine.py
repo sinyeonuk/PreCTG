@@ -6,7 +6,7 @@ from typing import Any
 
 from prectg.features import model_feature_contract
 from prectg.metadata import NON_CLINICAL_WARNING
-from prectg.model import ModelContractError, predict_probability
+from prectg.model import ModelContractError, predict_probability, probability_signal
 from prectg.preprocessing import InputContractError, normalize_record
 from prectg.rules import evaluate_stage_0, evaluate_stage_1
 from prectg.schema import (
@@ -125,13 +125,7 @@ def _model_stage(record: NormalizedRecord, bundle: dict[str, Any] | None, mode: 
                 )
             ],
         )
-    thresholds = bundle["thresholds"]
-    if probability < thresholds["low"]:
-        signal = Signal.LOW
-    elif probability < thresholds["high"]:
-        signal = Signal.REVIEW
-    else:
-        signal = Signal.HIGH
+    signal = probability_signal(bundle, probability)
     return StageResult(
         status=StageStatus.AVAILABLE,
         signal=signal,

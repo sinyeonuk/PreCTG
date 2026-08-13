@@ -19,11 +19,14 @@ PreCTG는 산모·태아 전자의료기록(EMR)과 분만 초기 태아 심박�
 Python 3.11 이상 환경에서 다음 순서로 준비합니다.
 
 ```powershell
+python --version  # Python 3.11 이상인지 확인
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 python -m pip install -r requirements-dev.txt
 ```
+
+시스템 기본 Python이 3.10 이하라면 먼저 Python 3.11 이상을 선택한 뒤 가상환경을 만듭니다. Python 버전이 맞지 않으면 고정된 NumPy 등 의존성을 설치할 수 없습니다.
 
 주요 명령은 다음과 같습니다.
 
@@ -32,6 +35,8 @@ prectg status
 prectg generate --rows 50000 --output data/synthetic/prectg-synthetic.csv
 prectg train --data data/synthetic/prectg-synthetic.csv --output models/prectg-demo.joblib
 prectg predict --input data/fixtures/minimal-synthetic-input.json --model models/prectg-demo.joblib
+prectg predict-batch --input data/synthetic/prectg-synthetic.csv --model models/prectg-demo.joblib --output outputs/batch-result.csv
+python scripts/benchmark.py
 python -m pytest
 ruff check .
 ruff format --check .
@@ -64,6 +69,7 @@ agents/project/      PreCTG 전용 에이전트 지침
 - [근거 자료 목록](docs/source-register.md): 외부 자료, 용도와 검증 상태
 - [모델 카드](docs/model-card.md): 합성 모델의 목적, 입력, 검증과 한계
 - [데모 및 인수 안내](docs/demo-and-handover.md): 발표 흐름, 벤치마크와 실제 데이터 전환 지점
+- [완료 감사와 팀 확인표](docs/completion-audit.md): Gate별 구현 증거와 사람이 확인할 최종 항목
 
 ## 중요 제한
 

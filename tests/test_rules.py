@@ -32,6 +32,38 @@ def test_stage_1_severe_demo_pattern_takes_priority() -> None:
         "demo_sinusoidal_pattern",
         "demo_late_deceleration",
     }
+    assert result.score == 4
+
+
+def test_stage_0_high_pattern_has_exact_golden_result() -> None:
+    record = normal_record().model_copy(
+        update={"gravida": 5, "para": 3, "gestational_age_weeks": 35}
+    )
+    result = evaluate_stage_0(record)
+
+    assert result.status == StageStatus.AVAILABLE
+    assert result.signal == Signal.HIGH
+    assert result.score == 3
+    assert [reason.code for reason in result.reasons] == [
+        "demo_ga_pattern",
+        "demo_gravida_pattern",
+        "demo_para_pattern",
+    ]
+
+
+def test_stage_1_conflict_pattern_keeps_severe_reason() -> None:
+    record = normal_record().model_copy(
+        update={
+            "baseline_variability": "2",
+            "acceleration": "1",
+            "late_deceleration": "2",
+        }
+    )
+    result = evaluate_stage_1(record)
+
+    assert result.signal == Signal.HIGH
+    assert result.score == 2
+    assert [reason.code for reason in result.reasons] == ["demo_late_deceleration"]
 
 
 def test_missing_stage_input_is_not_reported_as_low() -> None:

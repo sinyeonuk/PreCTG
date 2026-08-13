@@ -14,6 +14,18 @@ from prectg.metadata import NON_CLINICAL_WARNING
 
 SCENARIOS = ("normal", "maternal", "ctg", "combined", "missing", "conflict")
 GENERATOR_VERSION = "1.0.0"
+GENERATION_RULESET_VERSION = "synthetic-generator-rules-v1"
+PUBLIC_DISTRIBUTIONS = {
+    "maternal_age_teen": 0.0015,
+    "maternal_age_20s": 0.1074,
+    "maternal_age_30s": 0.7664,
+    "maternal_age_40s": 0.1241,
+    "maternal_age_50_plus": 0.0007,
+    "gravida_1": 0.4008,
+    "para_0": 0.5435,
+    "multiple_gestation": 0.1605,
+    "ctg_category_1": 0.7272,
+}
 
 
 @dataclass(frozen=True)
@@ -22,6 +34,7 @@ class SyntheticQualityReport:
     profile: str
     seed: int
     generator_version: str
+    ruleset_version: str
     checksum_sha256: str
     duplicate_records: int
     logical_violations: int
@@ -29,6 +42,7 @@ class SyntheticQualityReport:
     target_rate: float
     category_1_rate: float
     scenario_counts: dict[str, int]
+    distribution_differences: dict[str, float]
     warning: str = NON_CLINICAL_WARNING
 
 
@@ -44,6 +58,24 @@ def _scenario_values(rows: int, profile: str, rng: np.random.Generator) -> np.nd
     raise ValueError("profile은 coverage 또는 distribution이어야 합니다.")
 
 
+def _distribution_gravida_para(
+    rows: int, rng: np.random.Generator
+) -> tuple[np.ndarray, np.ndarray]:
+    """Sample a valid joint table while preserving both published marginals."""
+    gravida_values = np.asarray([1, 2, 3, 4, 5])
+    para_values = np.asarray([0, 1, 2, 3])
+    gravida_margin = np.asarray([0.4008, 0.3363, 0.1582, 0.075, 0.0297])
+    para_margin = np.asarray([0.5435, 0.34, 0.0928, 0.0237])
+    table = np.outer(gravida_margin, para_margin)
+    table *= para_values[np.newaxis, :] < gravida_values[:, np.newaxis]
+    for _ in range(100):
+        table *= (gravida_margin / table.sum(axis=1))[:, np.newaxis]
+        table *= (para_margin / table.sum(axis=0))[np.newaxis, :]
+    table /= table.sum()
+    sampled = rng.choice(table.size, rows, p=table.ravel())
+    return gravida_values[sampled // len(para_values)], para_values[sampled % len(para_values)]
+
+
 def generate_synthetic_data(
     rows: int = 500,
     seed: int = 20260814,
@@ -57,8 +89,23 @@ def generate_synthetic_data(
     index = np.arange(rows)
     mother_ids = index // 2
 
-    gravida = rng.choice([1, 2, 3, 4, 5], rows, p=[0.4008, 0.3363, 0.1582, 0.075, 0.0297])
-    para = np.minimum(gravida - 1, rng.choice([0, 1, 2, 3], rows, p=[0.5435, 0.34, 0.0928, 0.0237]))
+    age_probabilities = np.asarray([0.0015, 0.1074, 0.7664, 0.1241, 0.0007])
+    age_probabilities /= age_probabilities.sum()
+    if profile == "distribution":
+        maternal_age = rng.choice([19, 25, 35, 45, 52], rows, p=age_probabilities)
+        twins = rng.choice(["0", "1"], rows, p=[0.8395, 0.1605])
+    else:
+        maternal_age = np.resize(np.asarray([19, 25, 35, 45, 52]), rows)
+        twins = np.resize(np.asarray(["0", "0", "0", "0", "0", "1"]), rows)
+
+    if profile == "distribution":
+        gravida, para = _distribution_gravida_para(rows, rng)
+    else:
+        gravida = rng.choice([1, 2, 3, 4, 5], rows, p=[0.4008, 0.3363, 0.1582, 0.075, 0.0297])
+        para = np.minimum(
+            gravida - 1,
+            rng.choice([0, 1, 2, 3], rows, p=[0.5435, 0.34, 0.0928, 0.0237]),
+        )
     ga_weeks = np.clip(np.rint(rng.normal(38.5, 1.6, rows)), 30, 42).astype(int)
     ga_days = rng.integers(0, 7, rows)
     baseline = np.clip(np.rint(rng.normal(140, 10, rows)), 100, 180).astype(float)
@@ -76,7 +123,8 @@ def generate_synthetic_data(
     sinusoidal = np.where(ctg_risk & (rng.random(rows) < 0.08), "1", "0")
     early = np.where((~ctg_risk) & (rng.random(rows) < 0.12), "1", "0")
 
-    gravida = np.where(maternal_risk, np.maximum(gravida, 4), gravida)
+    if profile == "coverage":
+        gravida = np.where(maternal_risk, np.maximum(gravida, 4), gravida)
     ga_weeks = np.where(maternal_risk, np.minimum(ga_weeks, 36), ga_weeks)
     variability = np.where(conflict, "2", variability)
     acceleration = np.where(conflict, "1", acceleration)
@@ -104,10 +152,13 @@ def generate_synthetic_data(
             "ID": [f"SYN-{value:06d}" for value in index],
             "Mother.de-identification_ID": [f"SYN-M-{value:06d}" for value in mother_ids],
             "de-identification_ID": [f"SYN-F-{value:06d}" for value in index],
+            "Mother.MEASURE_DATE": "2026-08-14",
+            "Mother.Birth Date": [f"{2026 - int(age):04d}-01-01" for age in maternal_age],
             "Mother.Gravida": gravida,
             "Mother.Para": para,
             "GA.wks": ga_weeks,
             "GA.day": ga_days,
+            "twins": twins,
             "BaseLine": baseline,
             "Baseline_Variability": variability,
             "Acceleration": acceleration,
@@ -166,11 +217,27 @@ def validate_synthetic_data(frame: pd.DataFrame, profile: str, seed: int) -> Syn
         schema_violations += int((~frame[column].astype(str).isin(allowed)).sum())
     schema_violations += int((~frame["window_complete"].eq(True)).sum())
     schema_violations += int((frame["timing_source"] != "synthetic_generator").sum())
+    maternal_age = 2026 - pd.to_datetime(frame["Mother.Birth Date"]).dt.year
+    actual_distributions = {
+        "maternal_age_teen": float((maternal_age < 20).mean()),
+        "maternal_age_20s": float(maternal_age.between(20, 29).mean()),
+        "maternal_age_30s": float(maternal_age.between(30, 39).mean()),
+        "maternal_age_40s": float(maternal_age.between(40, 49).mean()),
+        "maternal_age_50_plus": float((maternal_age >= 50).mean()),
+        "gravida_1": float((frame["Mother.Gravida"] == 1).mean()),
+        "para_0": float((frame["Mother.Para"] == 0).mean()),
+        "multiple_gestation": float((frame["twins"].astype(str) == "1").mean()),
+        "ctg_category_1": float((frame["CA"].astype(str) == "0").mean()),
+    }
+    distribution_differences = {
+        key: actual_distributions[key] - expected for key, expected in PUBLIC_DISTRIBUTIONS.items()
+    }
     return SyntheticQualityReport(
         rows=len(frame),
         profile=profile,
         seed=seed,
         generator_version=GENERATOR_VERSION,
+        ruleset_version=GENERATION_RULESET_VERSION,
         checksum_sha256=dataframe_checksum(frame),
         duplicate_records=int(frame["ID"].duplicated().sum()),
         logical_violations=logical_violations,
@@ -180,6 +247,7 @@ def validate_synthetic_data(frame: pd.DataFrame, profile: str, seed: int) -> Syn
         scenario_counts={
             key: int(value) for key, value in frame["scenario_type"].value_counts().items()
         },
+        distribution_differences=distribution_differences,
     )
 
 

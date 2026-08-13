@@ -22,8 +22,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     started = time.perf_counter()
-    frame = generate_synthetic_data(args.rows, args.seed, "coverage")
-    report = validate_synthetic_data(frame, "coverage", args.seed)
+    frame = generate_synthetic_data(args.rows, args.seed, "distribution")
+    report = validate_synthetic_data(frame, "distribution", args.seed)
     generation_seconds = time.perf_counter() - started
 
     started = time.perf_counter()
@@ -58,6 +58,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             "logical_violations": report.logical_violations,
             "schema_violations": report.schema_violations,
             "checksum_sha256": report.checksum_sha256,
+            "distribution_differences": report.distribution_differences,
+            "minimum_scenario_count": min(report.scenario_counts.values()),
         },
         "model": {
             "group_overlap": training_report.group_overlap,
@@ -74,6 +76,13 @@ def main(argv: Sequence[str] | None = None) -> int:
             "training": training_seconds <= 300,
             "batch": batch_seconds <= 15,
             "single_inference": single_inference_seconds <= 1,
+            "data_quality": (
+                report.duplicate_records == 0
+                and report.logical_violations == 0
+                and report.schema_violations == 0
+                and min(report.scenario_counts.values()) >= 100
+                and all(abs(value) <= 0.01 for value in report.distribution_differences.values())
+            ),
         },
         "warning": "합성 데이터 처리량 측정이며 실제 임상 성능을 나타내지 않습니다.",
     }

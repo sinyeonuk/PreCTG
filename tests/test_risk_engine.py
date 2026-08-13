@@ -46,3 +46,17 @@ def test_invalid_input_returns_actionable_result_instead_of_exception() -> None:
     assert result.validation.status == "invalid"
     assert result.validation.errors[0].fields == ["unknown"]
     assert result.integrated_result.signal == Signal.UNAVAILABLE
+
+
+def test_incompatible_model_keeps_rules_and_returns_no_probability() -> None:
+    frame = generate_synthetic_data(rows=500, seed=23)
+    bundle, _ = train_model_bundle(frame, seed=23)
+    bundle["internal_features"] = ["wrong_feature"]
+
+    result = analyze_payload(fixture_payload(), bundle)
+
+    assert result.stages["stage_0"].status == StageStatus.AVAILABLE
+    assert result.stages["stage_1"].status == StageStatus.AVAILABLE
+    assert result.stages["stage_2"].status == StageStatus.UNAVAILABLE
+    assert result.stages["stage_2"].probability is None
+    assert result.integrated_result.status == "partial"

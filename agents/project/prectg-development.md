@@ -28,6 +28,7 @@ This document defines the confirmed project-specific boundaries for PreCTG devel
 - Run `prectg generate --rows 50000 --output data/synthetic/prectg-synthetic.csv` to generate the maintained large synthetic demonstration dataset.
 - Run `prectg train --data data/synthetic/prectg-synthetic.csv --output models/prectg-demo.joblib` to train a reproducible local model bundle.
 - Run `prectg predict --input <json> [--model <joblib>]` for the maintained machine-readable staged analysis flow.
+- Run `prectg predict-batch --input <csv> --model <joblib> --output <csv>` for the maintained batch inference flow.
 - Run `python scripts/benchmark.py` to verify the 50,000-row throughput budgets.
 - Run `python -m pytest` for the maintained project tests.
 - Run `ruff check .` and `ruff format --check .` for source linting and formatting verification.

@@ -10,6 +10,7 @@ from typing import Any
 import pandas as pd
 import streamlit as st
 
+from prectg.codebook import code_to_label
 from prectg.explanation import signal_label
 from prectg.features import training_feature_frame
 from prectg.metadata import NON_CLINICAL_WARNING
@@ -134,7 +135,7 @@ def progress(step: int) -> None:
 
 
 def reset() -> None:
-    for key in ("step", "payload", "result", "source_mode"):
+    for key in ("step", "payload", "result", "source_mode", "model_enabled"):
         st.session_state.pop(key, None)
     st.session_state.step = 1
 
@@ -161,6 +162,7 @@ def step_one() -> None:
         payload = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
         st.info("기본 입력을 다음 단계에서 직접 수정합니다.")
     else:
+        st.warning("실제 환자정보나 식별정보가 포함된 파일은 업로드하지 마세요.")
         uploaded = st.file_uploader("AIHub 호환 JSON 파일", type=["json"])
         if uploaded:
             try:
@@ -170,7 +172,17 @@ def step_one() -> None:
                 payload = loaded
                 st.success("JSON을 읽었습니다. 다음 단계에서 입력값을 확인해 주세요.")
             except (json.JSONDecodeError, UnicodeDecodeError, ValueError):
-                st.error("JSON 구조를 확인해 주세요. 최상위 값은 객체여야 합니다.")
+                st.error(
+                    f"{uploaded.name}의 JSON 구조를 확인해 주세요. 최상위 값은 객체여야 합니다."
+                )
+
+    model_enabled = st.checkbox(
+        "ML 분석 포함",
+        value=True,
+        help="끄면 규칙 결과만 유지되고 ML 단계는 모델 결과 없음으로 표시됩니다.",
+    )
+    if not model_enabled:
+        st.caption("규칙 기반 결과만 표시합니다. 사용할 수 있는 ML 모델이 없습니다.")
 
     left, right = st.columns([3, 1])
     with left:
@@ -183,6 +195,7 @@ def step_one() -> None:
         ):
             st.session_state.payload = payload
             st.session_state.source_mode = method
+            st.session_state.model_enabled = model_enabled
             st.session_state.step = 2
             st.rerun()
 
@@ -197,9 +210,24 @@ def _choice(value: Any, choices: list[str], default: str) -> int:
     return choices.index(normalized) if normalized in choices else choices.index(default)
 
 
+def _code_select(label: str, field: str, choices: list[str], value: Any, default: str) -> str:
+    return st.selectbox(
+        label,
+        choices,
+        index=_choice(value, choices, default),
+        format_func=lambda code: code_to_label(field, code),
+    )
+
+
 def step_two() -> None:
     st.subheader("분석에 사용할 입력을 확인해 주세요")
-    st.caption("미확정 EMR 코드 대신 현재 모델 계약에 포함된 정보만 표시합니다.")
+    model_scope = "규칙과 ML 분석" if st.session_state.get("model_enabled", True) else "규칙 분석만"
+    st.caption(f"입력 출처: {st.session_state.get('source_mode', '대표 사례')} · {model_scope}")
+    with st.expander("분석에 사용하는 정보"):
+        st.write(
+            "모델 입력: 임신·출산 횟수, 임신 주수, 기저 심박수와 초기 CTG 코드. "
+            "식별자, 정답, 출생 이후 결과와 합성 생성 메타데이터는 모델에서 제외합니다."
+        )
     payload = dict(st.session_state.payload)
     with st.form("input-review", border=True):
         left, right = st.columns(2)
@@ -223,33 +251,43 @@ def step_two() -> None:
                 _number(payload, "BaseLine", 140),
                 disabled=baseline_missing,
             )
-            variability = st.selectbox(
+            variability = _code_select(
                 "기저 변이도 코드",
+                "Baseline_Variability",
                 ["0", "1", "2", "3"],
-                index=_choice(payload.get("Baseline_Variability"), ["0", "1", "2", "3"], "2"),
+                payload.get("Baseline_Variability"),
+                "2",
             )
-            acceleration = st.selectbox(
-                "가속 코드", ["1", "2"], index=_choice(payload.get("Acceleration"), ["1", "2"], "1")
+            acceleration = _code_select(
+                "가속 코드", "Acceleration", ["1", "2"], payload.get("Acceleration"), "1"
             )
-            late = st.selectbox(
+            late = _code_select(
                 "후기 감속 코드",
+                "Late_deceleration",
                 ["0", "1", "2"],
-                index=_choice(payload.get("Late_deceleration"), ["0", "1", "2"], "0"),
+                payload.get("Late_deceleration"),
+                "0",
             )
-            variable = st.selectbox(
+            variable = _code_select(
                 "가변 감속 코드",
+                "Variable_deceleration",
                 ["0", "1", "2"],
-                index=_choice(payload.get("Variable_deceleration"), ["0", "1", "2"], "0"),
+                payload.get("Variable_deceleration"),
+                "0",
             )
-            prolonged = st.selectbox(
+            prolonged = _code_select(
                 "지연 감속 코드",
+                "Prolonged_deceleration",
                 ["0", "1"],
-                index=_choice(payload.get("Prolonged_deceleration"), ["0", "1"], "0"),
+                payload.get("Prolonged_deceleration"),
+                "0",
             )
-            sinusoidal = st.selectbox(
+            sinusoidal = _code_select(
                 "사인파형 코드",
+                "Sinosoical_pattern",
                 ["0", "1"],
-                index=_choice(payload.get("Sinosoical_pattern"), ["0", "1"], "0"),
+                payload.get("Sinosoical_pattern"),
+                "0",
             )
         back_col, submit_col = st.columns([3, 1])
         with back_col:
@@ -277,7 +315,8 @@ def step_two() -> None:
             }
         )
         with st.spinner("입력값을 확인하고 단계별 위험 신호를 분석하고 있습니다."):
-            result = analyze_payload(payload, demo_model())
+            bundle = demo_model() if st.session_state.get("model_enabled", True) else None
+            result = analyze_payload(payload, bundle)
         if result.validation.status == "invalid":
             for issue in result.validation.errors:
                 st.error(f"{issue.message} {issue.action or ''}")
@@ -324,12 +363,21 @@ def step_three() -> None:
     if result.completeness.missing_fields:
         with st.expander("누락된 입력 확인"):
             st.write(", ".join(result.completeness.missing_fields))
+    with st.expander("분석 계약 정보"):
+        st.write(
+            f"입력 {result.contract.input_version} · 관찰창 {result.contract.window_version} · "
+            f"목표 {result.contract.target_version} · 결과 {result.contract.result_version}"
+        )
     st.warning(NON_CLINICAL_WARNING)
     serialized = json.dumps(result.model_dump(mode="json"), ensure_ascii=False, indent=2)
-    back_col, download_col = st.columns([3, 1])
+    back_col, reset_col, download_col = st.columns([2, 2, 1.4])
     with back_col:
         if st.button("입력 수정", use_container_width=True):
             st.session_state.step = 2
+            st.rerun()
+    with reset_col:
+        if st.button("새 사례 분석", use_container_width=True):
+            reset()
             st.rerun()
     with download_col:
         st.download_button(

@@ -81,6 +81,7 @@ PreCTG/
 │  └─ predict.py
 ├─ src/prectg/
 │  ├─ schema.py
+│  ├─ codebook.py
 │  ├─ io.py
 │  ├─ preprocessing.py
 │  ├─ features.py

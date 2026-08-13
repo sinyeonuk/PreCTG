@@ -1,10 +1,11 @@
+import csv
 import json
 from copy import deepcopy
 from pathlib import Path
 
 import pytest
 
-from prectg.io import load_normalized_record
+from prectg.io import load_normalized_record, read_csv_records
 from prectg.preprocessing import InputContractError, normalize_record
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -32,6 +33,21 @@ def test_json_adapter_uses_same_contract() -> None:
     record = load_normalized_record(FIXTURE_PATH)
     assert record.gestational_age_weeks == 39
     assert record.baseline_variability == "2"
+
+
+def test_json_csv_and_mapping_inputs_normalize_to_same_record(tmp_path: Path) -> None:
+    payload = fixture_payload()
+    csv_path = tmp_path / "record.csv"
+    with csv_path.open("w", encoding="utf-8-sig", newline="") as output_file:
+        writer = csv.DictWriter(output_file, fieldnames=list(payload))
+        writer.writeheader()
+        writer.writerow(payload)
+
+    from_json = load_normalized_record(FIXTURE_PATH)
+    from_csv = normalize_record(read_csv_records(csv_path)[0])
+    from_mapping = normalize_record(payload)
+
+    assert from_json == from_csv == from_mapping
 
 
 @pytest.mark.parametrize(

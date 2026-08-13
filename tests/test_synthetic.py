@@ -35,3 +35,4 @@ def test_distribution_profile_matches_public_category_ratio_at_scale() -> None:
     report = validate_synthetic_data(frame, "distribution", 20260814)
 
     assert report.category_1_rate == pytest.approx(0.7272, abs=0.01)
+    assert all(abs(difference) <= 0.01 for difference in report.distribution_differences.values())

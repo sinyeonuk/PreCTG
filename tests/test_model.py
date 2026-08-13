@@ -51,3 +51,15 @@ def test_corrupt_model_file_is_reported_as_contract_error(tmp_path: Path) -> Non
 
     with pytest.raises(ModelContractError, match="불러올 수 없습니다"):
         load_model_bundle(model_path)
+
+
+def test_same_seed_retraining_is_numerically_reproducible() -> None:
+    frame = generate_synthetic_data(rows=1000, seed=41)
+    first, first_report = train_model_bundle(frame, seed=41)
+    second, second_report = train_model_bundle(frame, seed=41)
+
+    first_probabilities = predict_batch_probabilities(first, frame.head(100))
+    second_probabilities = predict_batch_probabilities(second, frame.head(100))
+    assert first_probabilities == pytest.approx(second_probabilities, abs=1e-12)
+    assert first["thresholds"] == pytest.approx(second["thresholds"], abs=1e-12)
+    assert first_report.data_checksum == second_report.data_checksum
