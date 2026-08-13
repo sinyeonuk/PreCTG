@@ -1,0 +1,417 @@
+contract_version: "field-contract-v1"
+source_schema: "aihub-71366-public-metadata"
+normalization:
+  missing_values: [null, "", "9999", 9999]
+  unknown_fields: reject
+  mutate_source: false
+
+fields:
+  - source_name: ID
+    internal_name: record_id
+    data_type: string
+    role: identifier
+    timing: PRE_LABOR
+    required_for: [input]
+    model_eligible: false
+    definition_status: confirmed
+
+  - source_name: Mother.de-identification_ID
+    internal_name: mother_group_id
+    data_type: string
+    role: group_identifier
+    timing: PRE_LABOR
+    required_for: [group_split]
+    model_eligible: false
+    definition_status: confirmed
+
+  - source_name: de-identification_ID
+    internal_name: fetus_group_id
+    data_type: string
+    role: group_identifier
+    timing: PRE_LABOR
+    required_for: [group_split]
+    model_eligible: false
+    definition_status: confirmed
+
+  - source_name: Mother.MEASURE_DATE
+    internal_name: measurement_date
+    data_type: date
+    role: provenance
+    timing: PRE_LABOR
+    required_for: []
+    model_eligible: false
+    definition_status: partial
+
+  - source_name: Mother.Birth Date
+    internal_name: mother_birth_date
+    data_type: date
+    role: raw_input
+    timing: PRE_LABOR
+    required_for: []
+    model_eligible: false
+    definition_status: partial
+
+  - source_name: Mother.Height
+    internal_name: mother_height
+    data_type: number
+    unit: unresolved
+    role: feature_candidate
+    timing: PRE_LABOR
+    required_for: []
+    model_eligible: false
+    definition_status: unresolved
+
+  - source_name: Mother.Weight
+    internal_name: mother_weight
+    data_type: number
+    unit: unresolved
+    role: feature_candidate
+    timing: PRE_LABOR
+    required_for: []
+    model_eligible: false
+    definition_status: unresolved
+
+  - source_name: Mother.Gravida
+    internal_name: gravida
+    data_type: integer
+    role: feature
+    timing: PRE_LABOR
+    required_for: []
+    model_eligible: true
+    definition_status: confirmed
+
+  - source_name: Mother.Para
+    internal_name: para
+    data_type: integer
+    role: feature
+    timing: PRE_LABOR
+    required_for: []
+    model_eligible: true
+    definition_status: confirmed
+
+  - source_name: Mother.SBP
+    internal_name: systolic_blood_pressure
+    data_type: number
+    unit: unresolved
+    role: feature_candidate
+    timing: PRE_LABOR
+    required_for: []
+    model_eligible: false
+    definition_status: unresolved
+
+  - source_name: Mother.DBP
+    internal_name: diastolic_blood_pressure
+    data_type: number
+    unit: unresolved
+    role: feature_candidate
+    timing: PRE_LABOR
+    required_for: []
+    model_eligible: false
+    definition_status: unresolved
+
+  - source_name: Mother.GHTN
+    internal_name: gestational_hypertension
+    data_type: string
+    role: feature_candidate
+    timing: PRE_LABOR
+    required_for: []
+    model_eligible: false
+    definition_status: unresolved
+
+  - source_name: Mother.Hypertension
+    internal_name: chronic_hypertension
+    data_type: string
+    role: feature_candidate
+    timing: PRE_LABOR
+    required_for: []
+    model_eligible: false
+    definition_status: unresolved
+
+  - source_name: Mother.GDM
+    internal_name: gestational_diabetes
+    data_type: string
+    role: feature_candidate
+    timing: PRE_LABOR
+    required_for: []
+    model_eligible: false
+    definition_status: unresolved
+
+  - source_name: Mother.DM
+    internal_name: diabetes_mellitus
+    data_type: string
+    role: feature_candidate
+    timing: PRE_LABOR
+    required_for: []
+    model_eligible: false
+    definition_status: unresolved
+
+  - source_name: Mother.pre-eclampsia
+    internal_name: preeclampsia
+    data_type: string
+    role: feature_candidate
+    timing: PRE_LABOR
+    required_for: []
+    model_eligible: false
+    definition_status: unresolved
+
+  - source_name: GA.wks
+    internal_name: gestational_age_weeks
+    data_type: integer
+    unit: week
+    role: feature
+    timing: PRE_LABOR
+    required_for: []
+    model_eligible: true
+    definition_status: confirmed
+
+  - source_name: GA.day
+    internal_name: gestational_age_days
+    data_type: integer
+    unit: day
+    allowed_range: [0, 6]
+    role: feature
+    timing: PRE_LABOR
+    required_for: []
+    model_eligible: true
+    definition_status: confirmed
+
+  - source_name: FGR
+    internal_name: fetal_growth_restriction
+    data_type: string
+    role: feature_candidate
+    timing: PRE_LABOR
+    required_for: []
+    model_eligible: false
+    definition_status: unresolved
+
+  - source_name: Placenta.Complication
+    internal_name: placenta_complication
+    data_type: string
+    role: feature_candidate
+    timing: PRE_LABOR
+    required_for: []
+    model_eligible: false
+    definition_status: unresolved
+
+  - source_name: Cervix
+    internal_name: cervix
+    data_type: string
+    role: blocked
+    timing: UNKNOWN
+    required_for: []
+    model_eligible: false
+    definition_status: unresolved
+
+  - source_name: twins
+    internal_name: multiple_gestation
+    data_type: string
+    role: feature_candidate
+    timing: PRE_LABOR
+    required_for: []
+    model_eligible: false
+    definition_status: unresolved
+
+  - source_name: BaseLine
+    internal_name: baseline
+    data_type: number
+    unit: bpm
+    role: feature
+    timing: EARLY_CTG
+    timing_evidence_required: true
+    required_for: [stage_1]
+    model_eligible: true
+    definition_status: confirmed
+
+  - source_name: Baseline_Variability
+    internal_name: baseline_variability
+    data_type: string
+    allowed_values: ["0", "1", "2", "3"]
+    role: feature
+    timing: EARLY_CTG
+    timing_evidence_required: true
+    required_for: [stage_1]
+    model_eligible: true
+    definition_status: confirmed
+
+  - source_name: Acceleration
+    internal_name: acceleration
+    data_type: string
+    allowed_values: ["1", "2"]
+    role: feature
+    timing: EARLY_CTG
+    timing_evidence_required: true
+    required_for: [stage_1]
+    model_eligible: true
+    definition_status: confirmed
+
+  - source_name: Early_deceleration
+    internal_name: early_deceleration
+    data_type: string
+    allowed_values: ["0", "1"]
+    role: feature
+    timing: EARLY_CTG
+    timing_evidence_required: true
+    required_for: [stage_1]
+    model_eligible: true
+    definition_status: confirmed
+
+  - source_name: Late_deceleration
+    internal_name: late_deceleration
+    data_type: string
+    allowed_values: ["0", "1", "2"]
+    role: feature
+    timing: EARLY_CTG
+    timing_evidence_required: true
+    required_for: [stage_1]
+    model_eligible: true
+    definition_status: confirmed
+
+  - source_name: Variable_deceleration
+    internal_name: variable_deceleration
+    data_type: string
+    allowed_values: ["0", "1", "2"]
+    role: feature
+    timing: EARLY_CTG
+    timing_evidence_required: true
+    required_for: [stage_1]
+    model_eligible: true
+    definition_status: confirmed
+
+  - source_name: Prolonged_deceleration
+    internal_name: prolonged_deceleration
+    data_type: string
+    allowed_values: ["0", "1"]
+    role: feature
+    timing: EARLY_CTG
+    timing_evidence_required: true
+    required_for: [stage_1]
+    model_eligible: true
+    definition_status: confirmed
+
+  - source_name: Sinosoical_pattern
+    internal_name: sinusoidal_pattern
+    data_type: string
+    allowed_values: ["0", "1"]
+    role: feature
+    timing: EARLY_CTG
+    timing_evidence_required: true
+    required_for: [stage_1]
+    model_eligible: true
+    definition_status: confirmed
+
+  - source_name: CA
+    internal_name: ctg_category
+    data_type: string
+    allowed_values: ["0", "1", "2"]
+    role: validation_target
+    timing: TARGET
+    required_for: []
+    model_eligible: false
+    definition_status: partial
+
+  - source_name: Abnormality
+    internal_name: abnormality
+    data_type: string
+    role: blocked
+    timing: UNKNOWN
+    required_for: []
+    model_eligible: false
+    definition_status: unresolved
+
+  - source_name: Emergency
+    internal_name: official_emergency_raw
+    data_type: string
+    allowed_values: ["0", "1"]
+    role: unresolved_target
+    timing: TARGET
+    required_for: []
+    model_eligible: false
+    definition_status: unresolved
+
+  - source_name: FetalDistress
+    internal_name: fetal_distress
+    data_type: string
+    role: blocked
+    timing: UNKNOWN
+    required_for: []
+    model_eligible: false
+    definition_status: unresolved
+
+  - source_name: Delivery
+    internal_name: delivery
+    data_type: string
+    role: outcome
+    timing: POST_DELIVERY
+    required_for: []
+    model_eligible: false
+    definition_status: partial
+
+  - source_name: APGAR.1min
+    internal_name: apgar_1min
+    data_type: number
+    role: outcome
+    timing: POST_DELIVERY
+    required_for: []
+    model_eligible: false
+    definition_status: confirmed
+
+  - source_name: APGAR.5min
+    internal_name: apgar_5min
+    data_type: number
+    role: outcome
+    timing: POST_DELIVERY
+    required_for: []
+    model_eligible: false
+    definition_status: confirmed
+
+  - source_name: NICU.Adm
+    internal_name: nicu_admission
+    data_type: string
+    role: outcome
+    timing: POST_DELIVERY
+    required_for: []
+    model_eligible: false
+    definition_status: confirmed
+
+synthetic_extension:
+  - internal_name: window_start
+    data_type: datetime
+    role: timing_provenance
+    model_eligible: false
+  - internal_name: window_end
+    data_type: datetime
+    role: timing_provenance
+    model_eligible: false
+  - internal_name: window_complete
+    data_type: boolean
+    role: timing_provenance
+    model_eligible: false
+  - internal_name: timing_source
+    data_type: string
+    role: timing_provenance
+    model_eligible: false
+  - internal_name: synthetic_emergency_after_index
+    data_type: boolean
+    role: target
+    timing: TARGET
+    model_eligible: false
+  - internal_name: synthetic_profile
+    data_type: string
+    role: generator_metadata
+    timing: TARGET
+    model_eligible: false
+  - internal_name: scenario_type
+    data_type: string
+    role: generator_metadata
+    timing: TARGET
+    model_eligible: false
+  - internal_name: generation_seed
+    data_type: integer
+    role: generator_metadata
+    timing: TARGET
+    model_eligible: false
+  - internal_name: generator_version
+    data_type: string
+    role: generator_metadata
+    timing: TARGET
+    model_eligible: false

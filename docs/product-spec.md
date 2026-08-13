@@ -146,11 +146,107 @@ MVP는 의료 현장 배포 제품이 아니며 환자, 보호자 또는 의료�
 
 ## 11. 미결정 사항
 
-- 분만 초기 관찰 구간의 정확한 길이와 절단 기준
 - 0단계 위험 점수의 최종 임상 근거와 가중치
 - AIHub의 `CA`가 어느 시점의 판독인지, 여러 이미지·구간과 환자 식별자의 관계
-- `Emergency` 라벨의 정확한 정의와 시간적 기준
+- 공식 `Emergency`를 `emergency_after_index`에 매핑할 수 있는지 여부
 - 본선 안심존에 설치된 LightGBM 및 Python 버전과 모델 반입 가능 형식
 - 실제 데이터에서 사용할 환자 단위 분할 키와 외부 검증 가능성
 
 이 사항은 공식 데이터 설명서, 샘플 확인 또는 주최 측 답변 없이 추정해 확정하지 않는다.
+
+## 12. 분석 결과 계약
+
+화면, CLI와 JSON은 `result-contract-v1`의 같은 의미를 사용한다. 결과는 다음 여섯 영역으로 나누며, 값이 없을 때 그럴듯한 기본값을 채우지 않는다.
+
+| 영역 | 필수 내용 |
+|---|---|
+| 계약 정보 | 결과 계약·입력 스키마·관찰창 버전 |
+| 입력 검증 | 전체 상태, 필드별 오류·경고, 정규화 여부 |
+| 데이터 완전성 | 단계별 사용 가능·기대 필드 수, 누락 필드, 출처 확인 여부 |
+| 0·1단계 | 상태, 시연용 신호, 실제 적용된 규칙 식별자와 근거 |
+| 2단계 | 모델 상태, 확률 또는 `null`, 상대 신호, 모델·특성 계약 버전 |
+| 통합 결과 | 통합 상태, 사용한 단계, 제외된 단계와 이유, 최종 시연용 신호 |
+
+### 12.1 공통 상태
+
+각 단계는 다음 상태 중 하나만 가진다.
+
+- `available`: 필요한 입력과 호환되는 규칙 또는 모델이 있어 결과를 계산함
+- `insufficient_data`: 계약은 사용할 수 있지만 필수 입력이나 출처 정보가 부족함
+- `unavailable`: 규칙 미승인, 모델 없음·손상·비호환 등 실행 자원이 없음
+- `not_applicable`: 기준시점 전에 이미 응급 상태가 확인되는 등 목표 모집단에 해당하지 않음
+- `failed`: 검증을 통과한 뒤 예상하지 못한 처리 오류가 발생함
+
+입력 자체가 유효하지 않으면 분석 단계를 실행하지 않고 `validation.status=invalid`와 필드 오류를 반환한다. `null`, `0`, 빈 문자열, `unavailable`은 서로 다른 의미로 유지한다.
+
+### 12.2 신호와 확률
+
+사용자에게 보이는 신호는 `low`, `review`, `high`, `unavailable` 네 값으로 제한하고 각각 `낮은 위험 신호`, `관찰 필요`, `우선 검토 필요`, `결과 없음`으로 표시한다. 이 신호는 진단이나 처치 등급이 아니다.
+
+- ML 확률은 모델 상태가 `available`일 때만 `0.0~1.0`으로 반환한다.
+- 합성 모델의 신호 경계는 학습 데이터의 검증 분포에서 정한 상대 분위수와 함께 모델 산출물에 저장한다. 고정된 임상 임계값으로 표현하지 않는다.
+- 임상 규칙이 승인되기 전 0·1단계는 기본 임상 모드에서 `unavailable`이다. 합성 시연 모드에서는 별도 `synthetic_demo` 규칙 묶음으로만 실행하고 화면과 JSON에 그 범위를 표시한다.
+- 모델을 불러오지 못했을 때 규칙 점수로 확률을 대신 만들지 않는다.
+
+### 12.3 통합 규칙
+
+통합 결과는 계산 가능한 단계만 사용하되 부분 결과라는 사실을 숨기지 않는다.
+
+1. 모든 단계가 `unavailable` 또는 `insufficient_data`이면 통합 신호는 `unavailable`이다.
+2. 하나 이상의 단계가 계산되면 통합 상태는 `complete` 또는 `partial`로 구분한다.
+3. 합성 시연 모드의 통합 신호는 사용 가능한 단계 신호 중 가장 높은 수준을 사용한다. 이는 보수적인 화면 요약 규칙이지 임상 의사결정 규칙이 아니다.
+4. `failed`가 발생해도 안전하게 계산된 다른 단계는 보존하지만, 통합 상태와 실패 이유를 반드시 표시한다.
+5. 결과의 모든 근거는 사용한 입력 필드, 값, 규칙 또는 모델 설명으로 역추적할 수 있어야 한다.
+
+모든 결과에는 `synthetic_data`, `non_clinical_use`, `rule_scope`를 포함해 기능 시연과 임상 결과를 기계적으로도 구분한다. 내부 진단 정보와 전체 입력값은 일반 사용자 화면이나 오류 메시지에 노출하지 않는다.
+
+JSON의 최상위 구조는 다음과 같이 고정한다. 하위 객체를 추가할 수는 있지만 기존 키의 의미나 타입을 바꾸는 변경은 새 계약 버전으로 분리한다.
+
+```json
+{
+  "contract": {
+    "result_version": "result-contract-v1",
+    "input_version": "field-contract-v1",
+    "window_version": "early-window-v1",
+    "target_version": "emergency-after-index-v1",
+    "mode": "synthetic_demo"
+  },
+  "validation": {"status": "valid", "errors": [], "warnings": []},
+  "completeness": {"overall_ratio": 1.0, "by_stage": {}, "missing_fields": []},
+  "stages": {
+    "stage_0": {"status": "unavailable", "signal": "unavailable", "reasons": []},
+    "stage_1": {"status": "unavailable", "signal": "unavailable", "reasons": []},
+    "stage_2": {
+      "status": "unavailable",
+      "signal": "unavailable",
+      "probability": null,
+      "reasons": []
+    }
+  },
+  "integrated_result": {
+    "status": "unavailable",
+    "signal": "unavailable",
+    "used_stages": [],
+    "excluded_stages": []
+  },
+  "limitations": {
+    "synthetic_data": true,
+    "non_clinical_use": true,
+    "rule_scope": "synthetic_demo"
+  }
+}
+```
+
+오류와 근거 항목은 사람이 읽는 문장만 저장하지 않고 안정적인 `code`, 관련 `field` 목록, 한국어 `message`, 가능한 경우 `action`을 함께 가진다. 화면은 이 구조를 변환해 표시하며 별도의 판정 로직을 갖지 않는다.
+
+## 13. 임상 규칙 승인 계약
+
+규칙은 `scope`와 `status`를 별도로 관리한다.
+
+- `scope=clinical`: 실제 임상 정의를 표방하는 규칙. `approved` 상태만 기본 임상 모드에서 실행할 수 있다.
+- `scope=synthetic_demo`: 기능 경로와 UX를 시험하는 가정. 임상 규칙으로 승격하거나 임상 근거처럼 표시할 수 없다.
+- 상태 흐름: `proposed → reviewed → approved`이며 부적합한 규칙은 `rejected`로 종료한다.
+
+`clinical` 규칙의 승인에는 규칙 식별자와 버전, 1차 출처, 대상 인구, 입력 시점, 단위, 경계 포함 여부, 충돌 우선순위, 임상 검토 권한이 있는 검토자와 검토일, 적용 한계가 모두 필요하다. 하나라도 빠지면 실행 구성에 포함하지 않는다. 변경 시 새 버전을 만들고 이전 모델·합성 데이터와의 호환성을 다시 검사한다.
+
+현재 승인된 임상 임계값은 0개다. 따라서 구현 시작 시 0·1단계의 임상 모드는 명시적으로 `unavailable`이며, 기능 시연은 합성 전용 규칙 묶음으로 분리해 진행한다.

@@ -65,8 +65,10 @@ PreCTG/
 │  ├─ assets/fonts/
 │  └─ streamlit_app.py
 ├─ configs/
-│  ├─ synthetic-default.yaml
-│  └─ feature-timing.yaml
+│  ├─ field-contract.yaml
+│  ├─ feature-timing.yaml
+│  ├─ result-contract.yaml
+│  └─ synthetic-default.yaml
 ├─ data/
 │  ├─ fixtures/
 │  └─ synthetic/
@@ -107,6 +109,7 @@ PreCTG/
 
 - AIHub 원본 필드와 내부 표준 필드 매핑
 - 필드별 타입, 코드, 단위, 결측 표현과 가용 시점
+- 초기 20분 관찰창, 합성 전용 예측 목표와 결과 상태 계약
 - 누수 금지 목록
 - 임상 규칙과 합성 분포 근거 레지스트리
 - 대표 정상·경계·고위험·결측 사례의 기대 결과
@@ -115,6 +118,8 @@ PreCTG/
 
 - 모든 모델 후보 특성에 시간 분류가 존재한다.
 - 확인되지 않은 임상 임계값이 `approved` 규칙으로 남아 있지 않다.
+- `field-contract-v1`과 시간 호환 설정이 자동 검사에서 일치한다.
+- `result-contract-v1`이 모델 없음·입력 부족을 `null`과 명시적 상태로 표현한다.
 
 ### 단계 1: 입력 스키마와 정규화
 

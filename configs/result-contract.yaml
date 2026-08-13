@@ -1,0 +1,68 @@
+contract_version: "result-contract-v1"
+input_schema_version: "field-contract-v1"
+observation_window:
+  version: "early-window-v1"
+  duration_minutes: 20
+  interval: "[start,end)"
+  index_time: end
+  complete_window_required: true
+  clinical_standard: false
+
+target:
+  name: emergency_after_index
+  version: "emergency-after-index-v1"
+  starts: index_time_exclusive
+  ends: delivery_episode_end_inclusive
+  preexisting_event: not_eligible
+  unresolved_timing: exclude
+  official_emergency_mapping: disabled
+  synthetic_field: synthetic_emergency_after_index
+
+stage_statuses:
+  - available
+  - insufficient_data
+  - unavailable
+  - not_applicable
+  - failed
+
+signals:
+  low: "낮은 위험 신호"
+  review: "관찰 필요"
+  high: "우선 검토 필요"
+  unavailable: "결과 없음"
+
+rule_modes:
+  clinical:
+    executable_status: approved
+    current_approved_rule_count: 0
+    default_stage_0_status: unavailable
+    default_stage_1_status: unavailable
+  synthetic_demo:
+    label: "합성 데이터 기능 시연용 규칙"
+    clinical_claim: false
+
+ml_result:
+  probability_when_unavailable: null
+  probability_range: [0.0, 1.0]
+  signal_threshold_source: validation_distribution_quantiles
+  fixed_clinical_thresholds: false
+  fallback_probability: forbidden
+
+integration:
+  no_available_stage_signal: unavailable
+  partial_results_are_explicit: true
+  synthetic_demo_strategy: maximum_available_signal
+  preserve_safe_stage_results_on_failure: true
+
+required_sections:
+  - contract
+  - validation
+  - completeness
+  - stages
+  - integrated_result
+  - limitations
+
+required_limitations:
+  synthetic_data: true
+  non_clinical_use: true
+  rule_scope: true

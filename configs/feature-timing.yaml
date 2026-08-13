@@ -1,5 +1,8 @@
-schema_version: "0.1.0"
+schema_version: "field-contract-v1"
 features:
+  ID: PRE_LABOR
+  Mother.de-identification_ID: PRE_LABOR
+  de-identification_ID: PRE_LABOR
   Mother.MEASURE_DATE: PRE_LABOR
   Mother.Birth Date: PRE_LABOR
   Mother.Height: PRE_LABOR
@@ -39,3 +42,14 @@ features:
   generator_version: TARGET
   scenario_type: TARGET
   synthetic_profile: TARGET
+  synthetic_emergency_after_index: TARGET
+
+conditional_timing:
+  EARLY_CTG:
+    evidence_required: true
+    evidence_fields:
+      - window_start
+      - window_end
+      - window_complete
+      - timing_source
+    contract_version: early-window-v1
