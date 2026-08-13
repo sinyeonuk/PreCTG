@@ -21,6 +21,20 @@ This document defines the confirmed project-specific boundaries for PreCTG devel
 - Keep the runtime offline-capable and avoid external inference APIs, telemetry, and services that require network access.
 - Prefer dependencies listed in `docs/architecture-and-delivery.md`; ask before introducing a new framework, runtime, service, or foundational dependency.
 
+## Implementation Quality
+
+- Add type hints to public functions, model input and output contracts, and domain boundaries.
+- Keep clinical rules, ML feature construction, model execution, and user-facing explanation in separate modules with focused responsibilities.
+- Avoid hidden global state and pass random seeds, configuration, paths, and model dependencies explicitly.
+- Keep tests independent of real network access, external services, and uncontrolled randomness.
+- Do not suppress warnings, weaken validation, or disable checks merely to make a run pass.
+- Validate generation and training logic on a small dataset before running 50,000-row or larger jobs.
+
+## Definition of Done
+
+- Treat a development step as complete only when it has an executable entry point or callable contract, focused automated tests, verified relevant failure paths, synchronized specifications, and a representative result that can be reviewed.
+- Do not mark a step complete merely because its source files exist or its primary success path ran once.
+
 ## Data and Leakage
 
 - Treat all locally generated patient-like records as synthetic and label their files and outputs accordingly.
@@ -28,6 +42,36 @@ This document defines the confirmed project-specific boundaries for PreCTG devel
 - Assign every model feature an availability timing from `docs/data-spec.md` and fail training when a target, post-window, post-delivery, unknown-timing, or generator-metadata field is selected.
 - Use patient-level or mother/fetus-level grouped splits whenever stable grouping identifiers are available.
 - Store generation seeds, schema versions, generator versions, evidence-rule identifiers, and checksums with synthetic dataset outputs.
+
+## Data and Artifact Storage
+
+- Commit only small, human-reviewable synthetic fixtures required by automated tests.
+- Do not commit bulk synthetic datasets, trained model binaries, generated charts, run outputs, caches, or logs; reproduce them from tracked code and configuration.
+- Never commit real medical data, patient-level records, identifiers, credentials, or unredacted data extracts to this repository.
+- Keep real or restricted medical data outside the repository even when local access is authorized.
+- Track generation commands, configuration, schema, evidence rules, checksums, and representative validation summaries needed to reproduce generated artifacts.
+
+## Clinical Rule Governance
+
+- Use a clinical rule as a default executable rule only when its source and applicability are recorded in `docs/source-register.md` and its status is approved.
+- Distinguish sourced clinical thresholds from synthetic-data assumptions in configuration, code, tests, documentation, and output labels.
+- Do not describe synthetic generation weights, scenario strengths, alert thresholds, or arbitrary score weights as clinical standards.
+- Update the owning specification, source register, configuration, and relevant tests together when changing a rule, threshold, weight, or precedence decision.
+- Leave decisions requiring clinical judgment unresolved until the user or an authorized clinical reviewer confirms them.
+
+## Model Failure Behavior
+
+- Return the ML result as unavailable when the model artifact is missing, incompatible, corrupt, or cannot accept the validated feature contract.
+- Do not convert a rule score into a fabricated ML probability or present a deterministic fallback as a trained-model result.
+- Prioritize an explicit insufficient-data state over a risk probability when required input quality is below the documented threshold.
+- Do not return plausible-looking default predictions after inference, validation, or model-loading failures.
+- Preserve usable rule-based results when they can be computed safely, while clearly separating them from unavailable ML results.
+
+## Reproducibility and Model Artifacts
+
+- Save the model version, schema version, ordered feature list, feature availability timing, synthetic generator version, random seed, training configuration, training-data checksum, and dependency versions with every trained model artifact.
+- Require a loaded model artifact to match the expected schema and feature contract before inference.
+- Make generated outputs reproducible from tracked code, approved configuration, and recorded metadata without relying on undocumented local state.
 
 ## RiskGate Reuse
 
@@ -40,6 +84,13 @@ This document defines the confirmed project-specific boundaries for PreCTG devel
 - Verify schema validation, rule boundaries, leakage rejection, deterministic generation, model persistence, and end-to-end prediction with focused automated tests.
 - Treat 50,000-row generation and batch inference as throughput demonstrations, not model-performance validation.
 - Keep the synthetic-data and non-clinical-use warning consistent across the README, CLI output, machine-readable results, and Streamlit UI.
+
+## User Interface
+
+- Use Pretendard as the primary font for the PreCTG frontend and Streamlit demonstration UI.
+- Bundle or load Pretendard in a way that remains usable in the intended offline environment; do not make core text rendering depend solely on an external font CDN.
+- Use a system sans-serif fallback stack when Pretendard cannot load, and preserve Korean readability across supported screens.
+- Keep the UI at the polished-demonstration level defined by `agents/common/ui/foundations.md`, with clear hierarchy, essential accessibility, and visible synthetic-data and non-clinical-use warnings.
 
 ## Git Workflow
 

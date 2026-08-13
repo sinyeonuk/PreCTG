@@ -1,2 +1,17 @@
 __pycache__/
 *.py[cod]
+
+# Local environments and tool caches
+.venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Generated datasets, models, and run artifacts
+data/synthetic/
+models/
+outputs/
+logs/
+*.joblib
+*.pkl
