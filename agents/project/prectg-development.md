@@ -40,3 +40,12 @@ This document defines the confirmed project-specific boundaries for PreCTG devel
 - Verify schema validation, rule boundaries, leakage rejection, deterministic generation, model persistence, and end-to-end prediction with focused automated tests.
 - Treat 50,000-row generation and batch inference as throughput demonstrations, not model-performance validation.
 - Keep the synthetic-data and non-clinical-use warning consistent across the README, CLI output, machine-readable results, and Streamlit UI.
+
+## Git Workflow
+
+- Treat `origin` as the authorized project remote for this repository and use the `main` branch unless the user explicitly requests another branch.
+- Handle the project's Git commit and push workflow when the user delegates it to Codex; do not ask a teammate to perform routine commit or push steps.
+- Review the working tree and staged diff before committing, and do not include unrelated or unexplained files.
+- Write commit messages in natural, concise Korean intended for the project team; describe the actual change and avoid translation-like wording, generic messages, and unnecessary prefixes.
+- Prefer one focused commit per coherent task and push the verified commit to the configured remote after the user-authorized change is complete.
+- Report the commit hash, branch, push result, and any files intentionally excluded when handing off the change.
