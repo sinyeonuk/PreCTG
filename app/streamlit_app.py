@@ -156,7 +156,6 @@ def step_one() -> None:
             format_func=lambda value: f"{CASE_LABELS[value][0]} — {CASE_LABELS[value][1]}",
         )
         payload = cases[selected]
-        st.info("모든 수치와 결과는 기능 확인을 위해 생성한 합성 사례입니다.")
     elif method == "직접 입력":
         payload = json.loads(FIXTURE_PATH.read_text(encoding="utf-8"))
         st.info("기본 입력을 다음 단계에서 직접 수정합니다.")
@@ -398,7 +397,6 @@ st.markdown(
     "위험 신호의 변화를 살펴봅니다.</div>",
     unsafe_allow_html=True,
 )
-st.caption("데모 환경 · 합성 데이터")
 progress(st.session_state.step)
 
 if st.session_state.step == 1:
