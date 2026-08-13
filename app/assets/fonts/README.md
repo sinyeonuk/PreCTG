@@ -1,5 +1,9 @@
 # Pretendard 글꼴 자산
 
-PreCTG UI는 Pretendard를 기본 글꼴로 사용합니다. 폐쇄망에서도 동작하도록 정식 배포본의 웹폰트 파일과 라이선스를 이 디렉토리에 함께 두고, Streamlit 스타일에서 로컬 경로로 불러옵니다.
+PreCTG UI는 Pretendard를 기본 글꼴로 사용합니다. 폐쇄망에서도 동작하도록 정식 배포본의 `Pretendard-Regular.woff2`와 OFL 라이선스 전문을 함께 보관합니다.
 
-현재 골격에는 글꼴 바이너리를 포함하지 않았습니다. UI 구현 단계에서 Pretendard 공식 배포본의 라이선스와 필요한 굵기를 확인한 후 최소 자산만 추가합니다. 글꼴이 없을 때는 운영체제의 한국어 산세리프 글꼴을 사용합니다.
+- 출처: [orioncactus/pretendard](https://github.com/orioncactus/pretendard)
+- 버전: 1.3.9 저장소 배포 파일
+- 라이선스: SIL Open Font License 1.1 (`OFL.txt`)
+
+Streamlit 앱은 글꼴 파일을 CSS에 직접 포함합니다. 파일을 읽을 수 없을 때는 운영체제의 한국어 산세리프 글꼴을 사용합니다.
