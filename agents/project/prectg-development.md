@@ -4,7 +4,7 @@ This document defines the confirmed project-specific boundaries for PreCTG devel
 
 ## Specification Ownership
 
-- Inspect `docs/product-spec.md`, `docs/data-spec.md`, `docs/architecture-and-delivery.md`, and `docs/source-register.md` before substantial implementation or data-generation work.
+- Inspect `docs/product-spec.md`, `docs/data-spec.md`, `docs/architecture-and-delivery.md`, `docs/mvp-delivery-plan.md`, and `docs/source-register.md` before substantial implementation or data-generation work.
 - Update the document that owns a changed product, data, architecture, or evidence decision in the same task as the implementation change.
 - Keep unverified clinical thresholds and unresolved AIHub field timing out of default executable rules until the source register marks the supporting rule as approved.
 
@@ -43,6 +43,7 @@ This document defines the confirmed project-specific boundaries for PreCTG devel
 
 - Treat a development step as complete only when it has an executable entry point or callable contract, focused automated tests, verified relevant failure paths, synchronized specifications, and a representative result that can be reviewed.
 - Do not mark a step complete merely because its source files exist or its primary success path ran once.
+- Apply the applicable Gate criteria and final completion baseline in `docs/mvp-delivery-plan.md`; do not substitute a narrower code-only definition of done.
 
 ## Data and Leakage
 

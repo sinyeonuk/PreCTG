@@ -55,6 +55,7 @@ agents/project/      PreCTG 전용 에이전트 지침
 - [제품 명세](docs/product-spec.md): 대회, 기획안, 팀, 목표, 범위와 완료 조건
 - [데이터 명세](docs/data-spec.md): 공식 데이터 구조, 누수 경계와 합성 데이터 계획
 - [아키텍처 및 구현 계획](docs/architecture-and-delivery.md): 기술 스택, 처리 흐름, 단계별 구현과 RiskGate 활용
+- [MVP 구현 및 수용 계획](docs/mvp-delivery-plan.md): 3단계 사용자 흐름, 화면별 UX·UI와 높은 완료 기준선
 - [근거 자료 목록](docs/source-register.md): 외부 자료, 용도와 검증 상태
 
 ## 중요 제한
