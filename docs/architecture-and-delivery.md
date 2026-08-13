@@ -76,6 +76,7 @@ PreCTG/
 ├─ outputs/
 ├─ scripts/
 │  ├─ generate_synthetic_data.py
+│  ├─ benchmark.py
 │  ├─ train.py
 │  └─ predict.py
 ├─ src/prectg/

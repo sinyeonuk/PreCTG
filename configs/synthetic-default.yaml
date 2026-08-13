@@ -1,5 +1,5 @@
-schema_version: "0.1.0"
-generator_version: "0.1.0"
+schema_version: "field-contract-v1"
+generator_version: "1.0.0"
 profile: coverage
 rows: 500
 random_seed: 20260814

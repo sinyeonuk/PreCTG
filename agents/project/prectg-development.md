@@ -25,6 +25,10 @@ This document defines the confirmed project-specific boundaries for PreCTG devel
 
 - Install the local development environment with `python -m pip install -r requirements-dev.txt` from an active Python 3.11-or-newer virtual environment.
 - Run `prectg status` to verify the installed package and current implementation stage.
+- Run `prectg generate --rows 50000 --output data/synthetic/prectg-synthetic.csv` to generate the maintained large synthetic demonstration dataset.
+- Run `prectg train --data data/synthetic/prectg-synthetic.csv --output models/prectg-demo.joblib` to train a reproducible local model bundle.
+- Run `prectg predict --input <json> [--model <joblib>]` for the maintained machine-readable staged analysis flow.
+- Run `python scripts/benchmark.py` to verify the 50,000-row throughput budgets.
 - Run `python -m pytest` for the maintained project tests.
 - Run `ruff check .` and `ruff format --check .` for source linting and formatting verification.
 - Run `streamlit run app/streamlit_app.py` for the local demonstration UI.

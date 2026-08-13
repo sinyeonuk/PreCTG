@@ -2,7 +2,7 @@ from pathlib import Path
 
 import yaml
 
-from prectg.schema import AvailabilityTiming
+from prectg.schema import AnalysisResult, AvailabilityTiming, NormalizedRecord
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
@@ -23,6 +23,8 @@ def test_field_contract_has_unique_names_and_safe_model_features() -> None:
     internal_names = [field["internal_name"] for field in fields]
     assert len(source_names) == len(set(source_names))
     assert len(internal_names) == len(set(internal_names))
+    extension_names = [field["internal_name"] for field in contract["synthetic_extension"]]
+    assert set(internal_names + extension_names) == set(NormalizedRecord.model_fields)
 
     allowed_timings = {
         AvailabilityTiming.PRE_LABOR.value,
@@ -68,3 +70,4 @@ def test_result_contract_keeps_unavailable_values_explicit() -> None:
     assert contract["ml_result"]["probability_when_unavailable"] is None
     assert contract["ml_result"]["fallback_probability"] == "forbidden"
     assert contract["observation_window"]["clinical_standard"] is False
+    assert set(contract["required_sections"]) == set(AnalysisResult.model_fields)
