@@ -1,0 +1,7 @@
+schema_version: "0.1.0"
+generator_version: "0.1.0"
+profile: coverage
+rows: 500
+random_seed: 20260814
+output_format: csv
+warning: "합성 데이터이며 실제 임상 분포나 성능을 나타내지 않습니다."

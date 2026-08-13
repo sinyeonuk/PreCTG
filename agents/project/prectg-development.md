@@ -21,6 +21,15 @@ This document defines the confirmed project-specific boundaries for PreCTG devel
 - Keep the runtime offline-capable and avoid external inference APIs, telemetry, and services that require network access.
 - Prefer dependencies listed in `docs/architecture-and-delivery.md`; ask before introducing a new framework, runtime, service, or foundational dependency.
 
+## Maintained Commands
+
+- Install the local development environment with `python -m pip install -r requirements-dev.txt` from an active Python 3.11-or-newer virtual environment.
+- Run `prectg status` to verify the installed package and current implementation stage.
+- Run `python -m pytest` for the maintained project tests.
+- Run `ruff check .` and `ruff format --check .` for source linting and formatting verification.
+- Run `streamlit run app/streamlit_app.py` for the local demonstration UI.
+- Update this section with the executable configuration when adding or changing a maintained command.
+
 ## Implementation Quality
 
 - Add type hints to public functions, model input and output contracts, and domain boundaries.

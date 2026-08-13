@@ -57,11 +57,12 @@ AIHub 호환 JSON/CSV 또는 데모 입력
 
 0단계와 1단계는 ML 모델이 없어도 실행되어야 한다. 2단계 모델 파일이 없거나 입력 품질이 기준에 미달하면 이를 명시적으로 보고하고 규칙 결과를 ML 결과처럼 위장하지 않는다.
 
-## 4. 권장 저장소 구조
+## 4. 저장소 구조
 
 ```text
 PreCTG/
 ├─ app/
+│  ├─ assets/fonts/
 │  └─ streamlit_app.py
 ├─ configs/
 │  ├─ synthetic-default.yaml
@@ -88,11 +89,13 @@ PreCTG/
 │  └─ synthetic.py
 ├─ tests/
 ├─ docs/
+├─ pyproject.toml
 ├─ requirements.txt
+├─ requirements-dev.txt
 └─ README.md
 ```
 
-실제 구현 시 빈 디렉토리를 미리 만들지 않고 해당 책임의 첫 파일이 필요할 때 생성한다.
+현재 골격은 위 책임 경계를 기준으로 구성되어 있다. `data/synthetic/`, `models/`, `outputs/`, `logs/`는 실행 시 생성되는 로컬 산출물 영역이며 Git에서 추적하지 않는다.
 
 ## 5. 단계별 구현 계획
 

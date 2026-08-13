@@ -1,3 +1,10 @@
+Metadata-Version: 2.4
+Name: prectg
+Version: 0.1.0
+Summary: 분만 전 EMR과 초기 CTG 정보를 단계적으로 결합하는 기능 시연용 MVP
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+
 # PreCTG
 
 PreCTG는 산모·태아 전자의료기록(EMR)과 분만 초기 태아 심박동 모니터링 정보를 단계적으로 결합해 위험 신호를 설명 가능한 형태로 제시하는 임상 의사결정 지원 MVP입니다.

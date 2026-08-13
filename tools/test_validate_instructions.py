@@ -69,7 +69,7 @@ class ValidatorTests(unittest.TestCase):
 
     def test_unmanaged_project_file_is_not_style_checked(self) -> None:
         source_path = self.root / "src" / "legacy.py"
-        source_path.parent.mkdir()
+        source_path.parent.mkdir(exist_ok=True)
         source_path.write_bytes(b"\xef\xbb\xbfvalue = 1  \r\n")
         result = self.run_validator()
         self.assertEqual(0, result.returncode, result.stdout + result.stderr)

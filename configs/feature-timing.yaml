@@ -1,0 +1,41 @@
+schema_version: "0.1.0"
+features:
+  Mother.MEASURE_DATE: PRE_LABOR
+  Mother.Birth Date: PRE_LABOR
+  Mother.Height: PRE_LABOR
+  Mother.Weight: PRE_LABOR
+  Mother.Gravida: PRE_LABOR
+  Mother.Para: PRE_LABOR
+  Mother.SBP: PRE_LABOR
+  Mother.DBP: PRE_LABOR
+  Mother.GHTN: PRE_LABOR
+  Mother.Hypertension: PRE_LABOR
+  Mother.GDM: PRE_LABOR
+  Mother.DM: PRE_LABOR
+  Mother.pre-eclampsia: PRE_LABOR
+  GA.wks: PRE_LABOR
+  GA.day: PRE_LABOR
+  FGR: PRE_LABOR
+  Placenta.Complication: PRE_LABOR
+  Cervix: UNKNOWN
+  twins: PRE_LABOR
+  BaseLine: EARLY_CTG
+  Baseline_Variability: EARLY_CTG
+  Acceleration: EARLY_CTG
+  Early_deceleration: EARLY_CTG
+  Late_deceleration: EARLY_CTG
+  Variable_deceleration: EARLY_CTG
+  Prolonged_deceleration: EARLY_CTG
+  Sinosoical_pattern: EARLY_CTG
+  CA: TARGET
+  Abnormality: UNKNOWN
+  Emergency: TARGET
+  Delivery: POST_DELIVERY
+  FetalDistress: UNKNOWN
+  APGAR.1min: POST_DELIVERY
+  APGAR.5min: POST_DELIVERY
+  NICU.Adm: POST_DELIVERY
+  generation_seed: TARGET
+  generator_version: TARGET
+  scenario_type: TARGET
+  synthetic_profile: TARGET
