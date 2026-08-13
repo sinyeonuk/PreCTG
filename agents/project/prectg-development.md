@@ -49,6 +49,9 @@ This document defines the confirmed project-specific boundaries for PreCTG devel
 - Treat a development step as complete only when it has an executable entry point or callable contract, focused automated tests, verified relevant failure paths, synchronized specifications, and a representative result that can be reviewed.
 - Do not mark a step complete merely because its source files exist or its primary success path ran once.
 - Apply the applicable Gate criteria and final completion baseline in `docs/mvp-delivery-plan.md`; do not substitute a narrower code-only definition of done.
+- Treat teammate acceptance activities, including an unaided demonstration, subjective copy review, presentation rehearsal, and team approval, as user-and-team responsibilities rather than Codex implementation goals.
+- Do not keep an otherwise completed Codex goal active or blocked solely because a teammate has not performed an acceptance activity. Hand off the relevant checklist without claiming that the human review passed.
+- Include a human acceptance activity in a Codex goal only when the user explicitly assigns Codex an independently executable part of that activity; never impersonate a teammate or fabricate sign-off.
 
 ## Data and Leakage
 

@@ -69,7 +69,7 @@ agents/project/      PreCTG 전용 에이전트 지침
 - [근거 자료 목록](docs/source-register.md): 외부 자료, 용도와 검증 상태
 - [모델 카드](docs/model-card.md): 합성 모델의 목적, 입력, 검증과 한계
 - [데모 및 인수 안내](docs/demo-and-handover.md): 발표 흐름, 벤치마크와 실제 데이터 전환 지점
-- [완료 감사와 팀 확인표](docs/completion-audit.md): Gate별 구현 증거와 사람이 확인할 최종 항목
+- [완료 감사와 팀 확인표](docs/completion-audit.md): Gate별 기술 완료 증거와 별도의 팀 인수 항목
 
 ## 중요 제한
 
