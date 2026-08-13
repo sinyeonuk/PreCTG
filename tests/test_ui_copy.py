@@ -8,7 +8,7 @@ def test_ui_avoids_clinically_definitive_copy() -> None:
     forbidden = ["안전합니다", "정상입니다", "응급입니다", "진단 결과", "치료 권고"]
 
     assert not any(phrase in APP_SOURCE for phrase in forbidden)
-    assert "합성 데이터 기반 기능 시연용 MVP" in APP_SOURCE or "NON_CLINICAL_WARNING" in APP_SOURCE
+    assert "데모 환경 · 합성 데이터" in APP_SOURCE
 
 
 def test_ui_bundles_font_without_external_cdn() -> None:

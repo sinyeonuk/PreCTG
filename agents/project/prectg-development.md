@@ -101,14 +101,14 @@ This document defines the confirmed project-specific boundaries for PreCTG devel
 
 - Verify schema validation, rule boundaries, leakage rejection, deterministic generation, model persistence, and end-to-end prediction with focused automated tests.
 - Treat 50,000-row generation and batch inference as throughput demonstrations, not model-performance validation.
-- Keep the synthetic-data and non-clinical-use warning consistent across the README, CLI output, machine-readable results, and Streamlit UI.
+- Keep the synthetic-data and non-clinical-use boundary consistent across the README, CLI output, and machine-readable results. In Streamlit, avoid repeated warning banners but retain a compact synthetic-demo label and the real-patient upload prohibition.
 
 ## User Interface
 
 - Use Pretendard as the primary font for the PreCTG frontend and Streamlit demonstration UI.
 - Bundle or load Pretendard in a way that remains usable in the intended offline environment; do not make core text rendering depend solely on an external font CDN.
 - Use a system sans-serif fallback stack when Pretendard cannot load, and preserve Korean readability across supported screens.
-- Keep the UI at the polished-demonstration level defined by `agents/common/ui/foundations.md`, with clear hierarchy, essential accessibility, and visible synthetic-data and non-clinical-use warnings.
+- Keep the UI at the polished-demonstration level defined by `agents/common/ui/foundations.md`, with clear hierarchy, essential accessibility, a compact synthetic-demo label, and a visible real-patient upload prohibition.
 
 ## Git Workflow
 

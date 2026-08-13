@@ -13,7 +13,6 @@ import streamlit as st
 from prectg.codebook import code_to_label
 from prectg.explanation import signal_label
 from prectg.features import training_feature_frame
-from prectg.metadata import NON_CLINICAL_WARNING
 from prectg.model import train_model_bundle
 from prectg.risk_engine import analyze_payload
 from prectg.schema import AnalysisResult
@@ -368,7 +367,6 @@ def step_three() -> None:
             f"입력 {result.contract.input_version} · 관찰창 {result.contract.window_version} · "
             f"목표 {result.contract.target_version} · 결과 {result.contract.result_version}"
         )
-    st.warning(NON_CLINICAL_WARNING)
     serialized = json.dumps(result.model_dump(mode="json"), ensure_ascii=False, indent=2)
     back_col, reset_col, download_col = st.columns([2, 2, 1.4])
     with back_col:
@@ -400,7 +398,7 @@ st.markdown(
     "위험 신호의 변화를 살펴봅니다.</div>",
     unsafe_allow_html=True,
 )
-st.markdown(f'<div class="notice">{NON_CLINICAL_WARNING}</div>', unsafe_allow_html=True)
+st.caption("데모 환경 · 합성 데이터")
 progress(st.session_state.step)
 
 if st.session_state.step == 1:
